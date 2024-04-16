@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cisco Switch Manager</title>
+    <style>
+        body { display: flex; }
+        #sidebar { width: 200px; background: #f0f0f0; padding: 20px; }
+        #content { flex-grow: 1; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h3>Menu</h3>
+        <ul>
+            <li><a href="/ports">Ports</a></li>
+            <li><a href="/health">Health</a></li>
+            <li><a href="/device_info">Device Info</a></li>
+        </ul>
+    </div>
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
