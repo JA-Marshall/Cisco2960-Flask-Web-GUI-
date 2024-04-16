@@ -1,11 +1,11 @@
+import time 
 class DeviceData:
     def __init__(self):
-        self.ports = None
-        self.health = None
-        self.device_info = None
+        self.is_connected = False
 
-    def connect_and_fetch_all_data(self):
-        pass
-    def update_port_status(self):
-        pass
-    
+    def connect(self):
+        time.sleep(2)  #temp delay will actually connect to the switch 
+        self.is_connected = True
+        return "Connected to device successfully!"
+
+device_data = DeviceData()
