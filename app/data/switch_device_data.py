@@ -15,7 +15,6 @@ class DeviceData:
 
 
     def connect(self):
-        time.sleep(2)  #temp delay will actually connect to the switch 
         net_connect = ConnectHandler(**device_info)
         self.port_status = net_connect.send_command('show ip int brief',use_textfsm=True)
         self.health_status = net_connect.send_command('show env all',use_textfsm=True)
@@ -26,6 +25,7 @@ class DeviceData:
         print(self.health_status)
         print(self.general_device_info)
         self.is_connected = True
+        net_connect.disconnect()
         return "Connected to device successfully!"
     
     #no ntc_template for show env all on a 2960 so need to parse it manually 

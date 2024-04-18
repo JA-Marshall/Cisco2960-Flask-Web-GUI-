@@ -1,6 +1,14 @@
 {% extends 'home.html' %}
 
 {% block content %}
-    <h2>Health</h2>
-    <p>This is the Health page.</p>
+<h2>Health</h2>
+{% if data %}
+    <ul>
+        {% for metric, value in data.items() %}
+        <li>{{ metric }}: {{ value }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No health data available.</p>
+{% endif %}
 {% endblock %}
