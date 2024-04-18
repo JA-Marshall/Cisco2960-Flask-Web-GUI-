@@ -4,8 +4,8 @@
 <h2>Health</h2>
 {% if data %}
     <ul>
-        {% for metric, value in data.items() %}
-        <li>{{ metric }}: {{ value }}</li>
+        {% for key, value in data.items() %}
+        <li>{{ key }}: {{ value }}</li>
         {% endfor %}
     </ul>
 {% else %}
