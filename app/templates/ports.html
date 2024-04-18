@@ -1,14 +1,60 @@
-{% extends 'home.html' %}
+{% extends "home.html" %}
 
 {% block content %}
-<h2>Ports</h2>
-{% if data %}
-    <ul>
-        {% for port, status in data.items() %}
-        <li>{{ port }}: {{ status }}</li>
+<style>
+   
+
+#content {
+    display: flex;
+    justify-content: right; /* Center .port-wrapper horizontally */
+    background-color: #263238; /* Color of the switch body */
+    border-radius: 10px; /* Rounded corners */
+    position: relative; /* Needed to position the labels absolutely */
+    max-width: 1000px; /* Max width of the switch body */
+}
+
+.port-wrapper {
+    display: grid;
+    grid-template-columns: repeat(13, 1fr); 
+    gap: 10px; /* Gap between ports */
+    padding: 10px 0; /* Padding at the top and bottom */
+}
+
+.port {
+    width: 100%; /* Full width of the column */
+    height: 30px; /* Height of the port */
+    background-color: #4CAF50; /* Green for active ports */
+    text-align: center;
+    line-height: 30px; /* Center text vertically */
+    color: white;
+    font-size: 0.8em; /* Font size of the port number */
+    border: 2px solid #263238; /* Border to match the switch body color */
+    border-radius: 5px; /* Rounded corners of the port */
+}
+
+.port.down {
+    background-color: #9E9E9E; /* Grey for down ports */
+}
+
+.port-label {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #cfd8dc; /* Color of the port numbers/labels */
+    font-size: 1em; /* Font size of the labels */
+}
+</style>
+
+<div id="content">
+    <div class="port-label">Ports</div>
+    <div class="port-wrapper">
+      {% for port in data %}
+        {% for port_number, status in port.items() %}
+          <div class="port {{ 'down' if status == 'down' else '' }}">
+            {{ port_number }}
+          </div>
         {% endfor %}
-    </ul>
-{% else %}
-    <p>No port data available.</p>
-{% endif %}
+      {% endfor %}
+    </div>
+</div>
 {% endblock %}

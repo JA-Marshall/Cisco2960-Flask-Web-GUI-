@@ -4,7 +4,7 @@ from data.switch_device_data import device_data
 import time
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Necessary for session management
+app.secret_key = 'your_secret_key'  
 
 @app.route('/')
 def index():
@@ -28,7 +28,7 @@ def home():
 @app.route('/ports')
 def ports():
     if 'connected' in session:
-        return render_template('ports.html',data=device_data.port_status[0])
+        return render_template('ports.html',data=device_data.port_status)
     return redirect(url_for('index'))
 
 @app.route('/health')
