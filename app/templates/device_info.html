@@ -1,6 +1,14 @@
 {% extends 'home.html' %}
 
 {% block content %}
-    <h2>Device Info</h2>
-    <p>This is the Device Info page.</p>
+<h2>Device Info</h2>
+{% if data %}
+    <ul>
+        {% for key, value in data.items() %}
+        <li>{{ key }}: {{ value }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No device information available.</p>
+{% endif %}
 {% endblock %}

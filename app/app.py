@@ -28,19 +28,19 @@ def home():
 @app.route('/ports')
 def ports():
     if 'connected' in session:
-        return render_template('ports.html')
+        return render_template('ports.html',data=device_data.port_status[0])
     return redirect(url_for('index'))
 
 @app.route('/health')
 def health():
     if 'connected' in session:
-        return render_template('health.html')
+        return render_template('health.html',data = device_data.health_status)
     return redirect(url_for('index'))
 
 @app.route('/device_info')
 def device_info():
     if 'connected' in session:
-        return render_template('device_info.html')
+        return render_template('device_info.html',data=device_data.general_device_info[0])
     return redirect(url_for('index'))
 
 if __name__ == '__main__':

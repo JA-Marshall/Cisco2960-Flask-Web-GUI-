@@ -1,6 +1,14 @@
 {% extends 'home.html' %}
 
 {% block content %}
-    <h2>Ports</h2>
-    <p>This is the Ports page.</p>
+<h2>Ports</h2>
+{% if data %}
+    <ul>
+        {% for port, status in data.items() %}
+        <li>{{ port }}: {{ status }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No port data available.</p>
+{% endif %}
 {% endblock %}
