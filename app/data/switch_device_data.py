@@ -3,12 +3,14 @@ import netmiko
 import json
 from netmiko import ConnectHandler
 import pprint
+from flask_socketio import SocketIO, emit
 
 device_info = json.load(open('data/switch_credentials.json', 'r'))
 
 class DeviceData:
-    def __init__(self):
+    def __init__(self,socketio):
         self.is_connected = False
+        self.socketio = socketio
         self.port_status = {}
         self.health_status = {}
         self.general_device_info = {}
@@ -91,10 +93,11 @@ class DeviceData:
                 print(f'\n\n {port_name}')
                 change = f"Change detected: Port {port} ({port_name['full_port_name']}) was {previous_status.upper()}' now '{current_status.upper()}'"
                 print(change)
-                changes.append(change)
+                changes.append({'port': port, 'display_str': change})
       
         if changes:
-            self.port_up_down_log.append(changes)
+            print(changes)
+            self.socketio.emit('port_update', {'data': changes}, namespace='/ports')
 
     ##this isn't actually needed i realized ios lets you type in FastEthernet0/1 i thought i needed to add the space..
     ##leaving it in because its less typing for netmiko..
@@ -118,4 +121,3 @@ class DeviceData:
         
 
     
-device_data = DeviceData()

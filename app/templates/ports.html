@@ -57,4 +57,70 @@
       {% endfor %}
     </div>
 </div>
+
+
+
+
+<!-- Section for displaying updates -->
+<div id="update-log">
+  <h3>Change Log</h3>
+  <ul id="log-list">
+      <!-- Updates will be appended here -->
+  </ul>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+<script>
+  var socket = io.connect('http://' + document.domain + ':' + location.port + '/ports');
+
+  socket.on('connect', function() {
+      console.log('Websocket connected!');
+  });
+
+  socket.on('port_update', function(msg) {
+    console.log('Received update:', msg);
+
+    var updates = msg.data; 
+    var logList = document.getElementById('log-list');
+    updates.forEach(function(update) {
+      
+        console.log('Update data:', update);
+
+        var newLog = document.createElement('li');
+        newLog.textContent = update.display_str;
+        logList.appendChild(newLog);
+
+     
+        var port = update.port;
+        var statusMatch = update.display_str.match(/now '(\w+)'/);
+        if (statusMatch && statusMatch.length === 2) {
+            var currentStatus = statusMatch[1].toLowerCase(); 
+            var portDiv = document.getElementById('port-' + port);
+            console.log('Updating port:', port, 'to status:', currentStatus);
+
+            if (portDiv) {
+            
+                if (currentStatus === 'down') {
+                    portDiv.classList.add('down');
+                    console.log('Port', port, 'set to down');
+                } else {
+                    portDiv.classList.remove('down');
+                    console.log('Port', port, 'set to up');
+                }
+            } else {
+                console.error('Could not find port element for port:', port);
+            }
+        } else {
+            console.error('Could not parse status from display_str:', update.display_str);
+        }
+    });
+});
+
+
+
+
+  socket.on('disconnect', function() {
+      console.log('Websocket disconnected');
+  });
+</script>
 {% endblock %}
