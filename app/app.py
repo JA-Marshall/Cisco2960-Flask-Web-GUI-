@@ -1,5 +1,5 @@
 
-from flask import Flask, render_template, redirect, url_for, session
+from flask import Flask, render_template, redirect, url_for, session,request
 from data.switch_device_data import DeviceData
 import time
 import threading
@@ -24,19 +24,28 @@ def index():
 @app.route('/connect', methods=['POST'])
 def connect():
     global data_thread  
-    msg = device_data.connect()
-    if device_data.is_connected:
-        session['connected'] = True
-        if data_thread is None or not data_thread.is_alive():
-            data_thread = threading.Thread(target=update_data)
-            data_thread.daemon = True
-            data_thread.start()
-        return redirect(url_for('home'))  
-    else:
-        return "Connection failed", 401
+    if data_thread is None or not data_thread.is_alive():
+        data_thread = threading.Thread(target=update_data)
+        data_thread.daemon = True
+        data_thread.start()
+    return redirect(url_for('connecting'))
+
+
+@app.route('/connecting/')
+def connecting():
+    return render_template('connecting.html')
+
+#i think this is bad having this many redirects for the websocket to work but i want to get this working before i sleep
+
+@app.route('/connected')
+def connected():
+    session['connected'] = True
+
+    return redirect(url_for('home'))
 
 @app.route('/home')
 def home():
+    print(session)
     if 'connected' in session:
         return render_template('home.html')
     return redirect(url_for('index'))
@@ -44,6 +53,7 @@ def home():
 @app.route('/ports')
 def ports():
     if 'connected' in session:
+        print("in ports")
         #convert dictionary to list of dictionaries
         port_status_list = [{port: status} for port, status in device_data.port_status.items()]
 

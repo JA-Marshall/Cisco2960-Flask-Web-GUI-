@@ -18,9 +18,24 @@ class DeviceData:
         self.port_up_down_log = []
 
     def connect(self):
-        net_connect = ConnectHandler(**device_info)
-        
+        try:
+            time.sleep(2)
+            # Emit an update about the connection attempt
+            self.socketio.emit('status_update', {'message': f'Attempting to SSH to {device_info["ip"]} as {device_info["username"]}...'}, namespace='/')
+            net_connect = ConnectHandler(**device_info)
+            # More code for connection...
+            self.is_connected = True
+            # Emit an update if the connection was successful
+            self.socketio.emit('status_update', {'message': 'Connected successfully!'}, namespace='/')
+        except Exception as e:
+            # Emit an update if the connection failed
+            self.socketio.emit('status_update', {'message': f'Connection failed: {e}'}, namespace='/')
+            self.is_connected = False
+
+        self.socketio.emit('status_update', {'message': 'Running show commands..'}, namespace='/')
+
         self.health_status = net_connect.send_command('show env all',use_textfsm=True)
+
         self.general_device_info = net_connect.send_command('show inventory', use_textfsm=True)
         raw_port_status = net_connect.send_command('show ip int brief',use_textfsm=True)
 
@@ -32,6 +47,9 @@ class DeviceData:
         self.health_status = self.parse_show_env(self.health_status)
       
         self.is_connected = True
+
+        self.socketio.emit('status_update', {'message': 'Done :D Redirecting..'}, namespace='/')
+
         net_connect.disconnect()
         #print(self.port_status)
         #print(self.port_up_down_log)
