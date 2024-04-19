@@ -1,14 +1,15 @@
 
 from flask import Flask, render_template, redirect, url_for, session
-from data.switch_device_data import device_data
+from data.switch_device_data import DeviceData
 import time
 import threading
-
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 app.secret_key = 'your_secret_key'  
 data_thread = None
-
+device_data = DeviceData(socketio)
 def update_data():
     while True:
         # Fetch the data every 10 seconds on the switch. 
@@ -63,6 +64,17 @@ def device_info():
         return render_template('device_info.html',data=device_data.general_device_info[0])
     return redirect(url_for('index'))
 
+@socketio.on('connect', namespace='/ports')
+def test_connect():
+    print('Client connected')
+
+@socketio.on('disconnect', namespace='/ports')
+def test_disconnect():
+    print('Client disconnected')
+
+
+
+
 if __name__ == '__main__':
    
-    app.run(debug=True)
+    socketio.run(app, debug=True)
