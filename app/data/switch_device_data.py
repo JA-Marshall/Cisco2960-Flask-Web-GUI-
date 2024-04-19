@@ -2,7 +2,7 @@ import time
 import netmiko 
 import json
 from netmiko import ConnectHandler
-
+import pprint
 
 device_info = json.load(open('data/switch_credentials.json', 'r'))
 
@@ -13,6 +13,7 @@ class DeviceData:
         self.health_status = {}
         self.general_device_info = {}
         self.port_names = []
+        self.port_up_down_log = []
 
     def connect(self):
         net_connect = ConnectHandler(**device_info)
@@ -30,8 +31,10 @@ class DeviceData:
       
         self.is_connected = True
         net_connect.disconnect()
-
+        #print(self.port_status)
+        print(self.port_up_down_log)
         return "Connected to device successfully!"
+    
     
     #no ntc_template for show env all on a 2960 so need to parse it manually 
 
@@ -56,24 +59,41 @@ class DeviceData:
         
         return status_dict
     
-    def build_port_up_list(self,raw_port_status):
-        print(f'status :{raw_port_status}')
-        port_status_list = []
+    def build_port_up_list(self, raw_port_status):
+        print("entering build_port_up_list func")
+        port_status_dict = {}
         for index, entry in enumerate(raw_port_status):
             if 'Vlan' in entry['interface']:
-                continue  
-            
-            port_number = str(index )  # Convert index to string and start from 1 for port numbering
-            port_status = {port_number: 'up'} if entry['status'] == 'up' and entry['proto'] == 'up' else {port_number: 'down'}
-            
-            
-            port_status_list.append(port_status)
-            print(port_status)
-        # Sorting the list to have all odd ports first, then evens to match what a cisco switch layout is 
+                continue
 
-        sorted_port_status = sorted(port_status_list, key=lambda x: (int(list(x.keys())[0]) % 2 == 0, int(list(x.keys())[0])))
-        return sorted_port_status
-    
+            port_number = str(index)  # Convert index to string and start from 1 for port numbering
+            port_status_dict[port_number] = 'up' if entry['status'] == 'up' and entry['proto'] == 'up' else 'down'
+
+        # Check for port updates if it's not the first time we're fetching the data
+        if self.port_status:
+            self.check_port_status_differences(port_status_dict)
+            
+
+        return port_status_dict
+        
+
+
+    def check_port_status_differences(self, new_port_status_dict):
+        print("entering check_port_differences func")
+
+        changes = []
+  
+        for port, current_status in new_port_status_dict.items():
+            previous_status = self.port_status.get(port, 'unknown')  
+            if previous_status != current_status:
+                port_name = self.port_names[int(port) - 1]
+                change = f"Change detected: Port {port_name} was {previous_status}' now '{current_status}'"
+                print(change)
+                changes.append(change)
+      
+        if changes:
+            self.port_up_down_log.append(changes)
+
     ##this isn't actually needed i realized ios lets you type in FastEthernet0/1 i thought i needed to add the space..
     ##leaving it in because its less typing for netmiko..
     def get_port_names(self, raw_port_status):
@@ -88,9 +108,9 @@ class DeviceData:
             port_number = port['interface'][-4:]
             if not port_number[0].isdigit():
                 port_number = port_number[1:]
-            print(f'{port_speed} {port_number}')
+            #print(f'{port_speed} {port_number}')
             port_names.append({'port_name' : f'{port_speed} {port_number}'})
-        print(port_names)
+        #print(port_names)
         return port_names
         
 
