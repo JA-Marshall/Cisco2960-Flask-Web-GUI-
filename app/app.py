@@ -2,9 +2,19 @@
 from flask import Flask, render_template, redirect, url_for, session
 from data.switch_device_data import device_data
 import time
+import threading
+
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  
+
+
+def update_data():
+    while True:
+        #fetch the data every 10 seconds on the switch. 
+        device_data.connect()
+        time.sleep(10) 
+
 
 @app.route('/')
 def index():
@@ -44,4 +54,7 @@ def device_info():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
+    data_thread = threading.Thread(target=update_data)
+    data_thread.daemon = True 
+    data_thread.start()
     app.run(debug=True)
