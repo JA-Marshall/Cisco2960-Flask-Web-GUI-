@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Connecting to Device</title>
+</head>
+<body>
+    <h1>Connecting...</h1>
+    <div id="status-updates"></div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script>
+        var socket = io();  // Connect to the default namespace
+
+        socket.on('status_update', function(data) {
+            var updatesDiv = document.getElementById('status-updates');
+            var updateElement = document.createElement('div');
+            updateElement.textContent = data.message;
+            updatesDiv.appendChild(updateElement);
+
+            if (data.message.includes('Done :D Redirecting..')) {
+                // Redirect to the home page after a delay of 2000 milliseconds (2 seconds)
+                setTimeout(function() {
+                    window.location.href = '/connected';
+                }, 2000);
+            } else if (data.message.includes('Connection failed')) {
+                // Redirect back to the root page after a delay of 2000 milliseconds (2 seconds)
+                setTimeout(function() {
+                    window.location.href = '/';
+                }, 2000);
+            }
+        });
+
+        socket.on('connect', function() {
+            console.log('WebSocket connected!');
+        });
+
+        socket.on('disconnect', function() {
+            console.log('WebSocket disconnected');
+        });
+    </script>
+</body>
+</html>
