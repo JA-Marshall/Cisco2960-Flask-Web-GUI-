@@ -13,7 +13,7 @@ def update_data():
     while True:
         #fetch the data every 10 seconds on the switch. 
         device_data.connect()
-        time.sleep(10) 
+        time.sleep(1) 
 
 
 @app.route('/')
@@ -38,7 +38,12 @@ def home():
 @app.route('/ports')
 def ports():
     if 'connected' in session:
-        return render_template('ports.html',data=device_data.port_status)
+        #convert dictionary to list of dictionaries
+        port_status_list = [{port: status} for port, status in device_data.port_status.items()]
+
+        #sorting the list to have all odd ports first, then even to match what a Cisco switch layout is
+        sorted_port_status = sorted(port_status_list, key=lambda x: (int(list(x.keys())[0]) % 2 == 0, int(list(x.keys())[0])))
+        return render_template('ports.html',data=sorted_port_status)
     return redirect(url_for('index'))
 
 @app.route('/health')
