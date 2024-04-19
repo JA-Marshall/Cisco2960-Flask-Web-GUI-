@@ -32,7 +32,7 @@ class DeviceData:
         self.is_connected = True
         net_connect.disconnect()
         #print(self.port_status)
-        print(self.port_up_down_log)
+        #print(self.port_up_down_log)
         return "Connected to device successfully!"
     
     
@@ -60,7 +60,7 @@ class DeviceData:
         return status_dict
     
     def build_port_up_list(self, raw_port_status):
-        print("entering build_port_up_list func")
+       
         port_status_dict = {}
         for index, entry in enumerate(raw_port_status):
             if 'Vlan' in entry['interface']:
@@ -79,15 +79,17 @@ class DeviceData:
 
 
     def check_port_status_differences(self, new_port_status_dict):
-        print("entering check_port_differences func")
 
         changes = []
   
         for port, current_status in new_port_status_dict.items():
             previous_status = self.port_status.get(port, 'unknown')  
             if previous_status != current_status:
-                port_name = self.port_names[int(port) - 1]
-                change = f"Change detected: Port {port_name} was {previous_status}' now '{current_status}'"
+                print(f'\n\n {self.port_names}')
+                index = int(port) - 1
+                port_name = self.port_names[index]
+                print(f'\n\n {port_name}')
+                change = f"Change detected: Port {port} ({port_name['full_port_name']}) was {previous_status.upper()}' now '{current_status.upper()}'"
                 print(change)
                 changes.append(change)
       
@@ -109,7 +111,8 @@ class DeviceData:
             if not port_number[0].isdigit():
                 port_number = port_number[1:]
             #print(f'{port_speed} {port_number}')
-            port_names.append({'port_name' : f'{port_speed} {port_number}'})
+            port_names.append({'port_name' : f'{port_speed} {port_number}','full_port_name' : port['interface']})
+          
         #print(port_names)
         return port_names
         
