@@ -7,11 +7,11 @@ import threading
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  
-
+data_thread = None
 
 def update_data():
     while True:
-        #fetch the data every 10 seconds on the switch. 
+        # Fetch the data every 10 seconds on the switch. 
         device_data.connect()
         time.sleep(1) 
 
@@ -22,10 +22,15 @@ def index():
 
 @app.route('/connect', methods=['POST'])
 def connect():
+    global data_thread  
     msg = device_data.connect()
     if device_data.is_connected:
         session['connected'] = True
-        return redirect(url_for('home'))
+        if data_thread is None or not data_thread.is_alive():
+            data_thread = threading.Thread(target=update_data)
+            data_thread.daemon = True
+            data_thread.start()
+        return redirect(url_for('home'))  
     else:
         return "Connection failed", 401
 
@@ -59,7 +64,5 @@ def device_info():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    data_thread = threading.Thread(target=update_data)
-    data_thread.daemon = True 
-    data_thread.start()
+   
     app.run(debug=True)
