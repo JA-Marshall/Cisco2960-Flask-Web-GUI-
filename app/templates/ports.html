@@ -2,11 +2,11 @@
 
 {% block content %}
 <style>
-   
-
 #content {
     display: flex;
-    justify-content: right; /* Center .port-wrapper horizontally */
+    flex-direction: column; /* Stack children elements vertically */
+    justify-content: flex-start; /* Align to the top */
+    align-items: center; /* Center children horizontally */
     background-color: #263238; /* Color of the switch body */
     border-radius: 10px; /* Rounded corners */
     position: relative; /* Needed to position the labels absolutely */
@@ -14,6 +14,7 @@
 }
 
 .port-wrapper {
+    width: 100%; /* Full width within the content box */
     display: grid;
     grid-template-columns: repeat(13, 1fr); 
     gap: 10px; /* Gap between ports */
@@ -21,7 +22,6 @@
 }
 
 .port {
-    width: 100%; /* Full width of the column */
     height: 30px; /* Height of the port */
     background-color: #4CAF50; /* Green for active ports */
     text-align: center;
@@ -38,36 +38,47 @@
 
 .port-label {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: -30px;
+    left: 50%; /* Center label */
+    transform: translateX(-50%); /* Center label accurately */
     color: #cfd8dc; /* Color of the port numbers/labels */
     font-size: 1em; /* Font size of the labels */
 }
+
+#update-log {
+    width: 100%; /* Full width within the content box */
+    background-color: #37474F; /* Darker background for the log */
+    border: 2px solid #263238; /* Border to match the ports */
+    border-radius: 5px; /* Rounded corners for the log box */
+    margin-top: 20px; /* Space between ports and log */
+    padding: 10px; /* Padding inside the log box */
+    color: white; /* Text color for the log entries */
+}
+
 </style>
 
 <div id="content">
     <div class="port-label">Ports</div>
     <div class="port-wrapper">
-      {% for port in data %}
-        {% for port_number, status in port.items() %}
-          <div class="port {{ 'down' if status == 'down' else '' }}">
-            {{ port_number }}
-          </div>
+        {% for port in data %}
+            {% for port_number, status in port.items() %}
+                <div class="port {{ 'down' if status == 'down' else '' }}">
+                    {{ port_number }}
+                </div>
+            {% endfor %}
         {% endfor %}
-      {% endfor %}
+    </div>
+    
+    <!-- Section for displaying updates -->
+    <div id="update-log">
+        <h3>Change Log</h3>
+        <ul id="log-list">
+            <!-- Updates will be appended here -->
+        </ul>
     </div>
 </div>
 
 
-
-
-<!-- Section for displaying updates -->
-<div id="update-log">
-  <h3>Change Log</h3>
-  <ul id="log-list">
-      <!-- Updates will be appended here -->
-  </ul>
-</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
 <script>
