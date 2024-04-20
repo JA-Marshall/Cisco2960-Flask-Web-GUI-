@@ -1,29 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connecting to Device</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #263238; /* Dark blue-grey color */
+            color: #cfd8dc; /* Light grey text color for readability */
+            margin: 0;
+            padding-top: 10px; /* Space from top */
+        }
+        #connection-status-wrapper {
+            background-color: #16213e;
+            border-radius: 10px;
+            width: 100%; /* Full width to align with the edges */
+            padding: 20px; /* Padding inside the wrapper */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 24px;
+            color: #e94560; /* Bright red color for attention */
+            margin: 0 0 10px 0; /* Zero margin for top and sides */
+            text-align: center; /* Center the heading */
+        }
+        #status-updates {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: transparent; /* To inherit from wrapper */
+            overflow-y: auto;
+            padding: 0; /* No padding as it's inside the wrapper */
+        }
+        .update {
+            background-color: #0f3460; /* Dark blue for contrast */
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+            border: 1px solid #263238; /* To blend with body background */
+            width: calc(100% - 16px); /* Full width minus padding */
+        }
+        .update.down {
+            background-color: #9E9E9E; /* Grey for disconnected or down ports */
+        }
+    </style>
 </head>
 <body>
-    <h1>Connecting...</h1>
-    <div id="status-updates"></div>
-    
+    <div id="connection-status-wrapper">
+        <h1>Connecting...</h1>
+        <div id="status-updates"></div>
+    </div>
+
+    <!-- Socket.io script and JavaScript for managing connection status will remain the same -->
+</body>
+</html>
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <script>
-        var socket = io();  // Connect to the default namespace
+        var socket = io(); // Connect to the default namespace
 
         socket.on('status_update', function(data) {
             var updatesDiv = document.getElementById('status-updates');
             var updateElement = document.createElement('div');
+            updateElement.className = 'update ' + (data.status === 'down' ? 'down' : '');
             updateElement.textContent = data.message;
             updatesDiv.appendChild(updateElement);
 
             if (data.message.includes('Done :D Redirecting..')) {
-                // Redirect to the home page after a delay of 2000 milliseconds (2 seconds)
                 setTimeout(function() {
                     window.location.href = '/connected';
                 }, 2000);
             } else if (data.message.includes('Connection failed')) {
-                // Redirect back to the root page after a delay of 2000 milliseconds (2 seconds)
                 setTimeout(function() {
                     window.location.href = '/';
                 }, 2000);
