@@ -4,8 +4,10 @@ import json
 from netmiko import ConnectHandler
 import pprint
 from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO
 
-device_info = json.load(open('data/switch_credentials.json', 'r'))
+
+device_info = json.load(open('app/data/switch_credentials.json', 'r'))
 
 class DeviceData:
     def __init__(self,socketio):
@@ -17,20 +19,20 @@ class DeviceData:
         self.port_names = []
         self.port_up_down_log = []
 
+
     def connect(self):
         try:
             time.sleep(2)
-            # Emit an update about the connection attempt
             self.socketio.emit('status_update', {'message': f'Attempting to SSH to {device_info["ip"]} as {device_info["username"]}...'}, namespace='/')
             net_connect = ConnectHandler(**device_info)
-            # More code for connection...
             self.is_connected = True
-            # Emit an update if the connection was successful
             self.socketio.emit('status_update', {'message': 'Connected successfully!'}, namespace='/')
         except Exception as e:
-            # Emit an update if the connection failed
             self.socketio.emit('status_update', {'message': f'Connection failed: {e}'}, namespace='/')
+            time.sleep(15)
             self.is_connected = False
+            return "Failed to connect to device."
+
 
         self.socketio.emit('status_update', {'message': 'Running show commands..'}, namespace='/')
 
@@ -40,16 +42,16 @@ class DeviceData:
         raw_port_status = net_connect.send_command('show ip int brief',use_textfsm=True)
 
         self.port_status = self.build_port_up_list(raw_port_status)
-        #we only need to get port names once
         if not self.port_names:
             self.port_names = self.get_port_names(raw_port_status)
-
+            
         self.health_status = self.parse_show_env(self.health_status)
       
-        self.is_connected = True
+       
 
         self.socketio.emit('status_update', {'message': 'Done :D Redirecting..'}, namespace='/')
 
+        
         net_connect.disconnect()
         #print(self.port_status)
         #print(self.port_up_down_log)

@@ -12,9 +12,9 @@ data_thread = None
 device_data = DeviceData(socketio)
 def update_data():
     while True:
-        # Fetch the data every 10 seconds on the switch. 
+        # Fetch the data every 3 seconds on the switch. 
         device_data.connect()
-        time.sleep(1) 
+        time.sleep(3) 
 
 
 @app.route('/')
