@@ -74,13 +74,6 @@ def device_info():
         return render_template('device_info.html',data=device_data.general_device_info[0])
     return redirect(url_for('index'))
 
-@app.route('/terminal')
-def terminal():
-    if 'connected' in session:
-        return render_template('terminal.html')
-    return redirect(url_for('index'))
-
-
 @socketio.on('connect', namespace='/ports')
 def test_connect():
     print('Client connected')
